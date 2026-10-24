@@ -1,6 +1,6 @@
-from airflow import DAG
-from airflow.operators.bash import BashOperator
 from airflow.utils.dates import days_ago
+from airflow.sdk import DAG
+from airflow.providers.standard.operators.bash import BashOperator
 
 default_args = {"owner": "data-eng", "retries": 1}
 
@@ -8,7 +8,7 @@ with DAG(
     dag_id="cleanup_tmp",
     default_args=default_args,
     start_date=days_ago(2),
-    schedule_interval="0 3 * * *",
+    schedule="0 3 * * *",
     catchup=False,
 ) as dag:
     BashOperator(
