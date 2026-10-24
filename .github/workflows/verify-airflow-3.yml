@@ -1,0 +1,24 @@
+name: verify-airflow-3-migration
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: "${{ github.event.pull_request.base.sha }}", path: before}
+      - uses: actions/checkout@v4
+        with: {path: after}
+      - uses: actions/cache@v4     # keep the Airflow 2 and 3 venvs between runs
+        with:
+          path: ${{ runner.temp }}/_github_home/aca-venv*
+          key: aca-venvs-v1-${{ hashFiles('before/**/requirements*.txt', 'after/**/requirements*.txt') }}
+      - uses: patrickballard/airflow-migration-verifier@v1
+        with:
+          mode: verify
+          before: before
+          after: after
+          strict: "true"           # fail the check on a DAG that doesn't import or renders differently
